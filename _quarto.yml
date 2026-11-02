@@ -1,0 +1,10 @@
+project:
+  type: website
+  output-dir: .
+
+website:
+  title: “Pod 1 Lesson 6”
+
+format:
+  html:
+    theme: cosmo
