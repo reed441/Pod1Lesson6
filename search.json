@@ -1,0 +1,72 @@
+[
+  {
+    "objectID": "index.html#learning-goals",
+    "href": "index.html#learning-goals",
+    "title": "Pod1Lesson6",
+    "section": "Learning Goals",
+    "text": "Learning Goals\nBy the end of this session, learners will be able to\n\nText here\ntext here\nText here\n\nBrief explanation here."
+  },
+  {
+    "objectID": "index.html#setting-up-your-workspace",
+    "href": "index.html#setting-up-your-workspace",
+    "title": "Pod1Lesson6",
+    "section": "Setting Up Your Workspace",
+    "text": "Setting Up Your Workspace\n\n# clear your environment \nrm(list = ls())\n# set the working directory \nsetwd('/Users/amreed18/Documents/ReproRehab/TA Materials/RR-TA-Materials-2026-2027')\n# read in your data \ndata &lt;- read.csv('rehab_study.csv',\n                 header = TRUE)"
+  },
+  {
+    "objectID": "index.html#install-if-necessary-and-load-ggplot2.",
+    "href": "index.html#install-if-necessary-and-load-ggplot2.",
+    "title": "Pod1Lesson6",
+    "section": "Install (if necessary) and load ggplot2.",
+    "text": "Install (if necessary) and load ggplot2.\n\n# uncomment the following line of code if you need to install ggplot2.\n# install.packages(\"ggplot2)\nlibrary(ggplot2)"
+  },
+  {
+    "objectID": "index.html#understanding-the-language-of-ggplot.",
+    "href": "index.html#understanding-the-language-of-ggplot.",
+    "title": "Pod1Lesson6",
+    "section": "Understanding the language of ggplot.",
+    "text": "Understanding the language of ggplot.\nggplot is a lot like an onion… it has layers. When building graphs using ggplot, you’ll specify different aspects of the figure in each layer.\n\nFirst Layer: What You Want to Plot\n\nthe dataframe\nthe variable you want on the x axis\nthe variable you want on the y axis\nhow you want things color coded by some condition/categorical variable in your dataset\n\n\n\nSecond Layer: What Type of Plot You Want\nThis layer is typically called the “geom” layer because each function you use to specify the plot type will start with geom. Some common ones you’ll probably be using are:\n\ngeom_point(): scatter plot\ngeom_bar() / geom_col(): bar graph (geom_col has a slightly different meaning but functionally, you can think of them as the same for now)\ngeom_histogram(): histogram\ngeom_boxplot(): boxplot\ngeom_violin(): violin plot\n\nWithin each of these functions, you can also edit things. For example, within geom_point(), you can change the shape, size, and opacity of each point on the graph. This will become more clear as we go through examples.\n\n\nThird (and beyond) Layer(s): Dressing Up Your Plot\nIn this layer is where you can add things like axes labels, titles, change the labels for variables/values on either axes, colors… whatever you’ve dreamed of, you can probably do here. Some basic functions to start are:\n\nlabs(): Where you can specify the title, x axis title, and y axis title.\nscale_y_discrete(): Where you can clean up your y axis labels. For example, instead of showing the long/confusing variable name, you can change it to be clearer and shorter.\n\nLet’s go through a couple examples."
+  },
+  {
+    "objectID": "index.html#histograms",
+    "href": "index.html#histograms",
+    "title": "Pod1Lesson6",
+    "section": "Histograms",
+    "text": "Histograms\n\nggplot(data, \n       aes(x = baseline_score)) +\n  geom_histogram()\n\n`stat_bin()` using `bins = 30`. Pick better value `binwidth`.\n\n\n\n\n\n\n\n\n\nWe got a warning about our bin width. We can edit this easily within the geom_histogram() layer.\n\nggplot(data, \n       aes(x = baseline_score)) +\n  geom_histogram(binwidth = 5)\n\n\n\n\n\n\n\n\nWe can also change the x axis title to be more polished.\n\nggplot(data, \n       aes(x = baseline_score)) +\n  geom_histogram(binwidth = 5) +\n  labs(\n    x = \"Baseline Score\"\n  )"
+  },
+  {
+    "objectID": "index.html#bar-graphs",
+    "href": "index.html#bar-graphs",
+    "title": "Pod1Lesson6",
+    "section": "Bar Graphs",
+    "text": "Bar Graphs\nLet’s look at a simple bar graph.\n\nggplot(data, aes(visits)) +\n  geom_bar()\n\n\n\n\n\n\n\n\nWhat if we wanted to see how number of visits varies by group (intervention vs control)? We could do this by setting a fill condition within aes().\n\n# set group to a factor\ndata$group &lt;- as.factor(data$group)\n\nggplot(data, aes(x = visits, fill = group)) +\n  geom_bar()\n\n\n\n\n\n\n\n\nIf you wanted to change this to be a side-by-side bar graph, we would alter the position. This is also an argument within each geom function. For a side-by-side bar graph, you set the position = “dodge”.\n\nSide by Side Bar Graph\n\nggplot(data, aes(x = visits, fill = group)) +\n  geom_bar(position = \"dodge\")\n\n\n\n\n\n\n\n\n\nYour Turn: Create a bar graph based on completion status.\n\n# YOUR TURN \n\n\n\n\n\n\n\nClick here for the Answer\n\n\n\n\n\n\n# put answer here\n\n\n\n\n\n\n\ngeom_bar vs geom_col\ngeom_barcounts the number of observations in each categorical variable automatically (it computes the height for you).\ngeom_col expects that you’ve already summarized your data and that you will provide the height of each bar specifically.\nIn short, use geom_bar when you have raw data and want to see the raw count. Use geom_col when you have summary data and want to plot the values.\nFor example,\n\n# geom_bar()\nggplot(data, aes(visits, fill = group)) + \n  geom_bar(position = \"dodge\") +\n  labs(\n    title = \"geom_Bar() Graph\",\n    x = \"Number of Visits\",\n    y = \"Count\",\n    fill = \"Group\"\n  )\n\n\n\n\n\n\n\n#geom_col() \navg_baselinescore &lt;- aggregate(baseline_score ~ visits + group, data = data, FUN = mean) # for every unique combination of visits and group, calculate the mean of baseline_score and store this output to a new data frame called avg_baselinescore\nggplot(avg_baselinescore, aes(x = visits, y = baseline_score, fill = group)) +\n  geom_col(position = \"dodge\") +\n  labs(\n    title = \"Average Baseline Score by Visits and\\nGroup Status using geom_col()\",\n    x = \"Visits\",\n    y = \"Average Baseliine Score\",\n    fill = \"Group\"\n  )"
+  },
+  {
+    "objectID": "index.html#scatter-plot",
+    "href": "index.html#scatter-plot",
+    "title": "Pod1Lesson6",
+    "section": "Scatter Plot",
+    "text": "Scatter Plot\nLet’s examine the relationship between age and baseline_score.\n\nggplot(data, \n       aes(x = baseline_score, \n           y = age)) +\n  geom_point()\n\n\n\n\n\n\n\n\nWe can change the size of the dots based on another variable in the dataset to communicate even more information in one visual. For example, we could set the size = visits to see how this relationship varies based on age.\n\nggplot(data, \n       aes(x = baseline_score, \n           y = age,\n           size = visits)) +\n  geom_point()\n\n\n\n\n\n\n\n\nOr you can have the color of the dots change based on visit number if that’s more your vibe.\n\nggplot(data, \n       aes(x = baseline_score, \n           y = age,\n           color = visits)) +\n  geom_point()\n\n\n\n\n\n\n\n\nIf we just generally want to change the shape and size of our points because they’re too big or too small, we can do that by adding shape and size arguments into the geom_point() function.\n\nggplot(data, \n       aes(x = baseline_score, \n           y = age)) +\n  geom_point(shape = 1, size = 4)\n\n\n\n\n\n\n\n\nIf you’re ever wondering what number equals what shape, there’s a key available here: https://www.r-bloggers.com/2023/11/enhance-scatterplots-with-ggplot-shapes-in-r/\nYou can also add a line of best fit to your scatter plot by adding a geom_smooth() layer.\n\nggplot(data, \n       aes(x = baseline_score, \n           y = age)) +\n  geom_point() +\n  geom_smooth(method = \"lm\")\n\n`geom_smooth()` using formula = 'y ~ x'\n\n\n\n\n\n\n\n\n\n\nYour Turn: Scatter Plot Exercise\n\nCreate a scatter plot examining the relationship between age and score_change.\nChange the points to be different colors based on group.\nBased on the key available provided at the link above, change the points to a hollow triangle point downward.\nAdd a line of best fit to your plot.\n\n\n# YOUR CODE HERE \n\n\n\n\n\n\n\nClick here for the Answer\n\n\n\n\n\n\n# code here"
+  },
+  {
+    "objectID": "index.html#boxplots",
+    "href": "index.html#boxplots",
+    "title": "Pod1Lesson6",
+    "section": "Boxplots",
+    "text": "Boxplots\nSome data visualizations, like boxplots, require your data to be in long format instead of wide.\nFor the boxplot exercise, we’re going to read in rehab_study_long, a dataset we created last week in Lesson 5 when we learned to pivot from wide to long, and vice versa.\n\nsetwd('/Users/amreed18/Documents/ReproRehab/TA Materials/RR-TA-Materials-2026-2027')\ndata_long &lt;- read.csv('rehab_study_long.csv',\n                   header = TRUE)\nhead(data_long)\n\n  X participant_id age        group visits completed      timepoint score\n1 1           P001  51 Intervention      4       Yes baseline_score    59\n2 2           P001  51 Intervention      4       Yes followup_score    69\n3 3           P002  60 Intervention      6       Yes baseline_score    50\n4 4           P002  60 Intervention      6       Yes followup_score    58\n5 5           P003  38 Intervention      9       Yes baseline_score    35\n6 6           P003  38 Intervention      9       Yes followup_score    46\n\n\nWe can create a simple boxplot looking at how baseline scores and follow up scores differ.\n\nggplot(data_long, \n       aes(x = factor(timepoint), y = score)) +\n  geom_boxplot()\n\n\n\n\n\n\n\n\n\nChallenge: If you wanted to add each individual point to your box plot, what would you do?\n\n# your code here\n\n\n\n\n\n\n\nClick here for the Answer\n\n\n\n\n\n\nggplot(data_long, \n       aes(x = factor(timepoint), y = score)) +\n  geom_boxplot() +\n  geom_point()"
+  },
+  {
+    "objectID": "index.html#violin-plots-boxplots-ivy-league-sibling",
+    "href": "index.html#violin-plots-boxplots-ivy-league-sibling",
+    "title": "Pod1Lesson6",
+    "section": "Violin Plots: Boxplot’s Ivy League Sibling",
+    "text": "Violin Plots: Boxplot’s Ivy League Sibling\nViolin plots show the distribution of a numeric variable for different groups - like boxplots, but they also display the density (the shape of the data). The wider sections of the violin show where more data points fall. This makes violin plots great for comparing how values are spread out across categories - not just their medians and quartiles.\n\nggplot(data_long, \n       aes(x = factor(timepoint), y = score)) +\n  geom_violin(trim = FALSE)"
+  },
+  {
+    "objectID": "index.html#themes",
+    "href": "index.html#themes",
+    "title": "Pod1Lesson6",
+    "section": "Themes",
+    "text": "Themes\nYou can also change the theme of your plots to make them look more polished. There are preset themes OR you can create your own.\n\nPreset Themes\n\nggplot(data_long, \n       aes(x = factor(timepoint), y = score)) +\n  geom_violin(trim = FALSE) +\n  theme_bw()\n\n\n\n\n\n\n\n\n\nggplot(data_long, \n       aes(x = factor(timepoint), y = score)) +\n  geom_violin(trim = FALSE) +\n  theme_classic()\n\n\n\n\n\n\n\n\n\nggplot(data_long, \n       aes(x = factor(timepoint), y = score)) +\n  geom_violin(trim = FALSE) +\n  theme_minimal()\n\n\n\n\n\n\n\n\n\n\nBuild Your Own Theme Using theme()\nText here/brief exp here\n\nggplot(data, \n       aes(x = baseline_score, \n           y = age,\n           color = visits)) +\n  geom_point() +\n   theme_minimal(base_size = 13) +   # start with a clean base theme\n  theme(\n    plot.title = element_text(face = \"bold\", size = 16, hjust = 0.5), \n    axis.title = element_text(face = \"bold\"),\n    axis.text = element_text(color = \"gray25\"),\n    panel.grid.major.x = element_blank(),  # remove vertical grid lines\n    panel.grid.minor = element_blank(),\n    legend.position = \"bottom\",\n    legend.title = element_text(face = \"bold\")\n  )\n\n\n\n\n\n\n\n\nBut what if you want to reuse your theme within an RMarkdown file? You can do that by creating a function.\n\ntheme_clean &lt;- function() {\n  theme_minimal(base_size = 13) +   # start with a clean base theme\n  theme(\n    plot.title = element_text(face = \"bold\", size = 16, hjust = 0.5), \n    axis.title = element_text(face = \"bold\"),\n    axis.text = element_text(color = \"gray25\"),\n    panel.grid.major.x = element_blank(),  # remove vertical grid lines\n    panel.grid.minor = element_blank(),\n    legend.position = \"bottom\",\n    legend.title = element_text(face = \"bold\")\n  )\n}\n\nIn our environment, theme_clean() now exists. This means we can apply it to any plot now without having to rewrite all those lines of code.\n\nggplot(data, aes(x = visits, fill = group)) +\n  geom_bar(position = \"dodge\") +\n  theme_clean()\n\n\n\n\n\n\n\n\nIf you want to reuse a theme throughout an entire R project, _____."
+  }
+]
