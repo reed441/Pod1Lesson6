@@ -4,17 +4,25 @@ format: html
 editor: visual
 ---
 
-## Today: Let's create some data visualizations. 
+## Today: Let's create some data visualizations.
 
 ## Learning Goals
 
 By the end of this session, learners will be able to
 
-1.  Text here
-2.  text here
-3.  Text here
+1.  Build and customize basic data visualizations in ggplot2 (including histograms, bar graphs, scatterplots, box plots, and violin plots).
+2.  Create custom themes and reusable function wrappers to apply consistent formatting across plots.
+3.  Visualize linear regression results using coefficient forest plots.
 
-Brief explanation here.
+In this lesson, we will explore the grammar of graphics using `ggplot2` to visualize data from raw counts to statistical models. We will cover how to build plots layer-by-layer, customize visual properties, create reusable styling functions, and visualize multiple linear regression outputs using forest plots.
+
+## NOTE
+
+Examples later on in this tutorial will use the long versions of rehab_study_long from Lesson 5 and rehab_study_demo from a previous lesson. There were a couple typos in Lesson 5 (that have since been fixed), so if you need the correct long form datasets, please download it at the link below. I have also included a link to the rehab_study_demo dataset, for ease.
+
+-   [rehab_study_long](https://github.com/reprorehab/reprorehab2026-pod1/blob/main/rehab_study_long.csv)
+
+-   [rehab_study_demo](https://github.com/reprorehab/reprorehab2026-pod1/blob/main/rehab_study_demo.csv)
 
 ## Setting Up Your Workspace
 
@@ -28,15 +36,16 @@ data <- read.csv('rehab_study.csv',
                  header = TRUE)
 ```
 
-## Install (if necessary) and load ggplot2. 
+## Install (if necessary) and load ggplot2 and tidyverse.
 
 ```{r}
 # uncomment the following line of code if you need to install ggplot2.
 # install.packages("ggplot2)
 library(ggplot2)
+library(tidyverse)
 ```
 
-## Understanding the language of ggplot. 
+## Understanding the language of ggplot.
 
 ggplot is a lot like an onion... it has layers. When building graphs using ggplot, you'll specify different aspects of the figure in each layer.
 
@@ -50,7 +59,7 @@ ggplot is a lot like an onion... it has layers. When building graphs using ggplo
 
 -   how you want things color coded by some condition/categorical variable in your dataset
 
-### Second Layer: What Type of Plot You Want 
+### Second Layer: What Type of Plot You Want
 
 This layer is typically called the "geom" layer because each function you use to specify the plot type will start with geom. Some common ones you'll probably be using are:
 
@@ -66,7 +75,7 @@ This layer is typically called the "geom" layer because each function you use to
 
 Within each of these functions, you can also edit things. For example, within geom_point(), you can change the shape, size, and opacity of each point on the graph. This will become more clear as we go through examples.
 
-### Third (and beyond) Layer(s): Dressing Up Your Plot 
+### Third (and beyond) Layer(s): Dressing Up Your Plot
 
 In this layer is where you can add things like axes labels, titles, change the labels for variables/values on either axes, colors... whatever you've dreamed of, you can probably do here. Some basic functions to start are:
 
@@ -76,7 +85,7 @@ In this layer is where you can add things like axes labels, titles, change the l
 
 Let's go through a couple examples.
 
-## Histograms 
+## Histograms
 
 ```{r}
 ggplot(data, 
@@ -103,7 +112,7 @@ ggplot(data,
   )
 ```
 
-## Bar Graphs 
+## Bar Graphs
 
 Let's look at a simple bar graph.
 
@@ -131,7 +140,7 @@ ggplot(data, aes(x = visits, fill = group)) +
   geom_bar(position = "dodge")
 ```
 
-#### Your Turn: Create a bar graph based on completion status. 
+#### Your Turn: Create a side by side bar graph filled based on completion status.
 
 ```{r}
 # YOUR TURN 
@@ -141,7 +150,8 @@ ggplot(data, aes(x = visits, fill = group)) +
 ### Click here for the Answer
 
 ```{r}
-# put answer here
+ggplot(data, aes(x = visits, fill = completed)) +
+  geom_bar(position = 'dodge')
 ```
 :::
 
@@ -217,7 +227,7 @@ ggplot(data,
   geom_point(shape = 1, size = 4)
 ```
 
-If you're ever wondering what number equals what shape, there's a key available here: <https://www.r-bloggers.com/2023/11/enhance-scatterplots-with-ggplot-shapes-in-r/>
+If you're ever wondering what number equals what shape, there's a key available here: <https://ggplot2.tidyverse.org/articles/ggplot2-specs.html>
 
 You can also add a line of best fit to your scatter plot by adding a geom_smooth() layer.
 
@@ -231,10 +241,15 @@ ggplot(data,
 
 #### Your Turn: Scatter Plot Exercise
 
-1.  Create a scatter plot examining the relationship between age and score_change.
-2.  Change the points to be different colors based on group.
-3.  Based on the key available provided at the link above, change the points to a hollow triangle point downward.
-4.  Add a line of best fit to your plot.
+1.  Calculate score_change variable which is followup_score - baseline_score.
+2.  Create a scatter plot examining the relationship between age and score_change.
+3.  Change the points to be different colors based on group.
+4.  Based on the key available provided at the link above, change the points to a hollow triangle point downward.
+5.  Add lines of best fit to your plot.
+6.  Add the following titles to your plot:
+    1.  Plot Title: Score Changes Based on Completion Status
+    2.  X axis: Score Change
+    3.  Y axis: Age
 
 ```{r}
 # YOUR CODE HERE 
@@ -244,11 +259,28 @@ ggplot(data,
 ### Click here for the Answer
 
 ```{r}
-# code here
+# calculate score_change
+data <- data %>%
+  mutate(score_change = followup_score - baseline_score)
+# create plot using ggplot
+ggplot(data, 
+       aes(x = score_change,
+           y = age,
+           fill = group)) +
+  # scatter plot layer 
+  geom_point(shape = 6) + 
+  # adding line of best fit
+  geom_smooth(method = "lm") +
+  # changing axes and plot titles
+  labs(
+    title = "Score Change Based on Completion Status",
+    x = "Score Change",
+    y = "Age"
+  )
 ```
 :::
 
-## Boxplots 
+## Boxplots
 
 Some data visualizations, like boxplots, require your data to be in long format instead of wide.
 
@@ -269,7 +301,7 @@ ggplot(data_long,
   geom_boxplot()
 ```
 
-#### Challenge: If you wanted to add each individual point to your box plot, what would you do? 
+#### Challenge: If you wanted to add each individual point to your box plot, what would you do?
 
 ```{r}
 # your code here
@@ -370,8 +402,203 @@ ggplot(data, aes(x = visits, fill = group)) +
   theme_clean()
 ```
 
-If you want to reuse a theme throughout an entire R project, \_\_\_\_\_.
+# Mini Intro to Data Analysis: Linear Regression
+
+While creating scatter plots earlier, we were looking at the relationship between two continuous variables. If we wanted to examine their relationship more formally, we could perform linear regression analysis. For all intents and purposes, we are going to assume that all the assumptions of linear regression are met.
+
+To do this in R, we use the lm() function.
+
+| model \<- lm(Y \~ X, data = dataframe of interest)
+
+And to see the results, you can use summary().
+
+| summary(model)
+
+Let's revisit the score_change vs age question.
+
+## Simple Linear Regression Example
 
 ```{r}
-
+model <- lm(score_change ~ age,
+            data = data)
+# show the results 
+summary(model)
 ```
+
+Now, what if we wanted to see how income also impacts score_change?
+
+In Lesson 5, we learned how to read in external files and merge datasets using a common identifier. Before we can test whether income influences score change, we need to bring in the demographic data and merge it with our current dataset.
+
+### Recall Challenge
+
+**Goal: Read in `rehab_study_demo.csv`**, clean the formatting of `income_usd` so R recognizes it as numeric, match the ID variable, and join it with `data` into a new dataframe called `demo_rehab`.
+
+```{r}
+# YOUR CODE HERE
+```
+
+::: {.callout-tip collapse="true"}
+### Click here for the Answer
+
+```{r}
+# load tidyverse package
+library(tidyverse)
+# read in demo data 
+setwd('/Users/amreed18/Documents/ReproRehab/TA Materials/RR-TA-Materials-2026-2027')
+demo <- read.csv('rehab_study_demo.csv',
+                 header = TRUE)
+# rename study_id to participant_id, and clean the income string variable
+demo <- demo %>%
+  rename(participant_id = study_id) %>%
+  mutate(income_usd = str_remove(income_usd, "\\$"), 
+income_usd = str_remove(income_usd, ","), 
+income_usd = as.numeric(income_usd))
+
+# merge demo with data into a new data frame called demo_rehab
+demo_rehab <- merge(data, demo, by = "participant_id")
+```
+:::
+
+## Multiple Linear Regression Example
+
+```{r}
+model2 <- lm(score_change ~ age + income_usd,
+             data = demo_rehab)
+summary(model2)
+```
+
+## Visualizing Regression Results: Coefficient Forest Plot
+
+One way to visualize regression results can be through creating a regression coefficient forest plot. This is a visual chart that displays regression model estimates (such as beta coefficients, odd ratios, or hazard ratios) along with their confidence intervals.
+
+Instead of reading a long, dense table of numbers, a forest plot quickly lets you see the direction, size, and statistical significance of each variable.
+
+Now, this can take some data manipulation to accomplish but is worth it in the end. We are going to walk through how to create a forest plot with our multiple regression model, model2.
+
+### First, we need to convert our model2 summary to a standardized clean data frame using tidy() within the broom package.
+
+```{r}
+#uncomment the line below to install broom if necessary
+#install.packages("broom)
+library(broom)
+model2df <- tidy(model2)
+```
+
+### Second, we need extract the confidence intervals from the model summary and add them to the model2df
+
+```{r}
+# extract confidence intervals from model2 
+ci <- confint(model2)
+# add them to model2df 
+model2df$conf.low <- ci[,1]
+model2df$conf.high <- ci[,2]
+# reorder - better comment needed here
+model2df$term <- reorder(model2df$term, model2df$estimate)
+```
+
+### Third, we need to add a column that specifies whether something is "Significant" or "Not Significant" based on the p value. We'll say that p \< 0.05 is significant.
+
+```{r}
+model2df$sig <- ifelse(model2df$p.value < 0.05, "Significant", "Not Significant")
+```
+
+### Fourth, we filter out the intercept since we don't need that on our plot.
+
+```{r}
+model2df <- model2df %>% filter(term != "(Intercept)")
+```
+
+### Now, we can create our coefficient forest plot.
+
+```{r}
+model2.coefficient.plot <- ggplot(model2df, 
+                                  aes(x=estimate, y=term, color = sig)) +
+  # what type of graph: a point/dot based graph
+  geom_point() +
+  # adds the whiskers for the confidence intervals
+  geom_errorbar(orientation = "y", 
+                aes(xmin=conf.low,xmax=conf.high), height = 0.2) +
+  # changes the y axis labels 
+  scale_y_discrete(labels = c("age" = "Age", "income_usd" = "Income (USD)"
+  )) +
+  # adds a vertical dashed line at 0 
+  geom_vline(xintercept = 0, linetype = "dashed") +
+  # makes significant values reed and non-significant values gray
+  scale_color_manual(values=c("Significant"="firebrick","Not Significant"= "gray40")) +
+  # now let's dress up the plot
+  theme(
+    # make the plot title bold, centered, and size 14
+    plot.title = element_text(hjust = 0.5, size = 14, face = "bold"),
+    # bold the x and y axes titles, size 12
+    axis.title.x = element_text(size = 12, face = "bold"),
+    axis.title.y = element_text(size = 12, face = "bold"),
+    # add just any axes text to be size 10 and bold
+    axis.text.x = element_text(size = 10, face = "bold"),
+    axis.text.y = element_text(size = 10, face = "bold"),
+    # for the legend, bolden the text and size 10
+    legend.text = element_text(size = 10, face = "bold"),
+    # put the legend at the bottom
+    legend.position = "bottom"
+  ) +
+  labs(
+    x = "Coefficient Estimate",     # x axis label
+    y = "Predictor",                # y axis label
+    color = "",                     # don't need a label for the legend 
+    title = "Regression Coefficients with 95% Confidence Intervals"  # title 
+  ) 
+# view your plot
+model2.coefficient.plot
+```
+
+#### Your Turn: Forest Plot Challenge
+
+Now it's your turn to fit a model and visualize the results!
+
+1.  Fit a multiple linear regression model (`model3`) predicting `score_change` using `age`, `income_usd`, and `visits`.
+2.  Convert your model to a tidy data frame using `tidy()` from the `broom` package.
+3.  Extract the 95% confidence intervals and add them as `conf.low` and `conf.high` columns.
+4.  Add a `sig` column categorizing variables as "Significant" ($p < 0.05$) or "Not Significant".
+5.  Filter out the intercept term.
+6.  Create a coefficient forest plot displaying the estimates and 95% confidence intervals for all three predictors. Apply your custom `theme_clean()` function to dress up the plot!
+
+```{r}
+# YOUR CODE HERE 
+```
+
+::: {.callout-tip collapse="true"}
+### Click here for the Answer
+
+```{r}
+# 1. Fit the multiple regression model
+model3 <- lm(score_change ~ age + income_usd + visits, data = demo_rehab)
+
+# 2. Tidy the model output
+model3df <- tidy(model3)
+
+# 3. Add confidence intervals
+ci3 <- confint(model3)
+model3df$conf.low <- ci3[,1]
+model3df$conf.high <- ci3[,2]
+
+# 4. Create significance indicator
+model3df$sig <- ifelse(model3df$p.value < 0.05, "Significant", "Not Significant")
+
+# 5. Filter out the intercept
+model3df <- model3df %>% filter(term != "(Intercept)")
+
+# 6. Build the forest plot
+ggplot(model3df, aes(x = estimate, y = term, color = sig)) +
+  geom_point(size = 3) +
+  geom_errorbarh(aes(xmin = conf.low, xmax = conf.high), height = 0.2) +
+  geom_vline(xintercept = 0, linetype = "dashed", color = "gray50") +
+  scale_y_discrete(labels = c("age" = "Age", "income_usd" = "Income (USD)", "visits" = "Number of Visits")) +
+  scale_color_manual(values = c("Significant" = "firebrick", "Not Significant" = "gray40")) +
+  labs(
+    title = "Multivariable Regression Estimates for Score Change",
+    x = "Coefficient Estimate (95% CI)",
+    y = "Predictor Variable",
+    color = ""
+  ) +
+  theme_clean()
+```
+:::
