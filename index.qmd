@@ -67,7 +67,7 @@ This layer is typically called the "geom" layer because each function you use to
 
 -   geom_bar() / geom_col(): bar graph (geom_col has a slightly different meaning but functionally, you can think of them as the same for now)
 
--   geom_histogram(): histogram
+-   geom_histogram(): histogram (hist())
 
 -   geom_boxplot(): boxplot
 
@@ -90,6 +90,7 @@ Let's go through a couple examples.
 ```{r}
 ggplot(data, 
        aes(x = baseline_score)) +
+  # give me a histogram
   geom_histogram()
 ```
 
@@ -117,7 +118,7 @@ ggplot(data,
 Let's look at a simple bar graph.
 
 ```{r}
-ggplot(data, aes(visits)) +
+ggplot(data, aes(x = visits)) +
   geom_bar()
 ```
 
@@ -224,7 +225,7 @@ If we just generally want to change the shape and size of our points because the
 ggplot(data, 
        aes(x = baseline_score, 
            y = age)) +
-  geom_point(shape = 1, size = 4)
+  geom_point(shape = 1, size = 20)
 ```
 
 If you're ever wondering what number equals what shape, there's a key available here: <https://ggplot2.tidyverse.org/articles/ggplot2-specs.html>
@@ -247,7 +248,7 @@ ggplot(data,
 4.  Based on the key available provided at the link above, change the points to a hollow triangle point downward.
 5.  Add lines of best fit to your plot.
 6.  Add the following titles to your plot:
-    1.  Plot Title: Score Changes Based on Completion Status
+    1.  Plot Title: Score Changes Based on Group Status
     2.  X axis: Score Change
     3.  Y axis: Age
 
@@ -441,8 +442,8 @@ In Lesson 5, we learned how to read in external files and merge datasets using a
 ### Click here for the Answer
 
 ```{r}
-# load tidyverse package
-library(tidyverse)
+# uncomment the line below to load tidyverse package if you haven't done so already 
+#library(tidyverse)
 # read in demo data 
 setwd('/Users/amreed18/Documents/ReproRehab/TA Materials/RR-TA-Materials-2026-2027')
 demo <- read.csv('rehab_study_demo.csv',
@@ -456,6 +457,7 @@ income_usd = as.numeric(income_usd))
 
 # merge demo with data into a new data frame called demo_rehab
 demo_rehab <- merge(data, demo, by = "participant_id")
+head(demo_rehab)
 ```
 :::
 
@@ -479,7 +481,7 @@ Now, this can take some data manipulation to accomplish but is worth it in the e
 
 ```{r}
 #uncomment the line below to install broom if necessary
-#install.packages("broom)
+#install.packages("broom")
 library(broom)
 model2df <- tidy(model2)
 ```
@@ -494,6 +496,7 @@ model2df$conf.low <- ci[,1]
 model2df$conf.high <- ci[,2]
 # reorder - better comment needed here
 model2df$term <- reorder(model2df$term, model2df$estimate)
+head(model2df)
 ```
 
 ### Third, we need to add a column that specifies whether something is "Significant" or "Not Significant" based on the p value. We'll say that p \< 0.05 is significant.
@@ -523,7 +526,7 @@ model2.coefficient.plot <- ggplot(model2df,
   )) +
   # adds a vertical dashed line at 0 
   geom_vline(xintercept = 0, linetype = "dashed") +
-  # makes significant values reed and non-significant values gray
+  # makes significant values red and non-significant values gray
   scale_color_manual(values=c("Significant"="firebrick","Not Significant"= "gray40")) +
   # now let's dress up the plot
   theme(
